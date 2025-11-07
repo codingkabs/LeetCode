@@ -23,29 +23,29 @@ Expected Output:
     Max: 8
     Min: 1
 """
-#sum value
 
+# ✅ Fixed: your original had name mixups (used mini before defining; swapped logic)
 nums = [5, 2, 8, 3, 1]
+
+# sum value (no sum())
 total = 0
 for num in nums:
     total += num
-print(total)
+print("Total sum:", total)
 
-#max value
-
+# max value (no max())
 maxi = float("-inf")
 for num in nums:
-    if num > mini:
-        mini = num
-print(mini)
+    if num > maxi:
+        maxi = num
+print("Max:", maxi)
 
-#min value
-
+# min value (no min())
 mini = float("inf")
 for num in nums:
-    if num < maxi:
-        maxi = num
-print(maxi)
+    if num < mini:
+        mini = num
+print("Min:", mini)
 
 
 # --------------------------------------------------------------
@@ -58,45 +58,31 @@ Example:
     nums = [4, 9, 2, 11, 7, 9]  -> 9
     nums = [9, 9, 9]            -> None
 """
-nums = [4, 9, 2, 11, 7, 9]
-# ✏️ Your code here ATTEMPT 1
 
+# ✅ Attempt 1 (kept): Uses set() and max() once — allowed by prompt.
+#    Minor robustness: handle all-equal case, and print None appropriately.
+nums = [4, 9, 2, 11, 7, 9]
 list_to_set = set(nums)
-maxi = max(nums)
-
-if len(list_to_set) == 1 or len(list_to_set) == 0:
+if len(list_to_set) <= 1:
     print(None)
+else:
+    maxi = max(nums)  # allowed once by prompt
+    maxi_two = float("-inf")
+    for num in nums:
+        if num != maxi and num > maxi_two:
+            maxi_two = num
+    print("Attempt 1 — max:", maxi, "second:", maxi_two if maxi_two != float("-inf") else None)
 
-maxi_two = float("-inf")
-for num in nums:
-    if num > maxi_two and num != maxi:
-        maxi_two = num
-        
-print(maxi)
-print(maxi_two)
-
-#time complexity O(n)
-#space complexity O(n)
-# --------------------------------------------------------------
-
+# ✅ Attempt 2 (fixed): One pass; ensures distinctness with `first > x > second`
 nums = [4, 9, 2, 11, 7, 9]
-
 first = second = float("-inf")
-
-if len(set(nums)) <= 1:
-    print(None)
-
-for num in nums:
-    if num > first:
+for x in nums:
+    if x > first:
         second = first
-        first = num
-    elif num > second:
-        second = num
-    
-print(first, second)
-
-# time complexity O(n)
-#space complexity O(1)
+        first = x
+    elif first > x > second:  # ensures distinct second
+        second = x
+print("Attempt 2 — second:", None if second == float("-inf") else second)
 
 
 # --------------------------------------------------------------
@@ -111,8 +97,8 @@ Expected Output:
     {1: 1, 2: 2, 3: 3}
 """
 nums = [1, 2, 2, 3, 3, 3]
-# ✏️ Your code here
 
+# ✅ Your solution is correct
 hashmap = {}
 for num in nums:
     if num not in hashmap:
@@ -120,7 +106,6 @@ for num in nums:
     else:
         hashmap[num] += 1
 print(hashmap)
-
 
 
 # --------------------------------------------------------------
@@ -136,6 +121,7 @@ Example:
 My Solution (In-Place Deletion with Hashmap)
 ------------------------------------------------
 """
+# ⚠️ Note: O(n^2) due to repeated deletions (Python list shifting)
 nums = [3, 5, 3, 1, 5, 2]
 
 hashmap = {}
@@ -151,30 +137,15 @@ for i in range(len(nums) - 1, -1, -1):
         del nums[i]
 
 print(nums)  # -> [3, 5, 1, 2]
+
 """
-------------------------------------------------
-Time and Space Complexity Analysis
-------------------------------------------------
-1. Building the frequency map:
-   - Time: O(n)
-   - Space: O(k), where k = number of unique elements.
-
-2. Deletion loop:
-   - Each "del nums[i]" shifts all later elements left by one position.
-   - Each deletion is O(n) in Python lists.
-   - If there are many duplicates, total cost ≈ O(n²).
-
-=> Overall:
-   - Time Complexity: O(n²)  (due to costly deletions)
-   - Space Complexity: O(k)  (for the hashmap)
-   - Pros: In-place, order preserved.
-   - Cons: Slow for large n because of repeated shifting.
-
 ------------------------------------------------
 Optimal Approach (Write-Pointer / In-Place Overwrite)
 ------------------------------------------------
+NOTE: The exercise said "Do NOT use set()". The classic optimal uses a set.
+Keeping it for learning; see below for a dict-based version that obeys the rule.
 """
-def remove_duplicates(nums):
+def remove_duplicates_with_set(nums):
     seen = set()
     write = 0
     for x in nums:
@@ -182,43 +153,57 @@ def remove_duplicates(nums):
             seen.add(x)
             nums[write] = x
             write += 1
-    del nums[write:]  # truncate the tail
+    del nums[write:]
     return nums
 
 nums = [3, 5, 3, 1, 5, 2]
-print(remove_duplicates(nums))  # -> [3, 5, 1, 2]
-"""
-------------------------------------------------
-Optimal Solution Analysis
-------------------------------------------------
-- Time Complexity: O(n)
-    Single pass + one tail slice (no per-delete shifts).
-- Space Complexity: O(k)
-    Uses a set to track seen elements.
-- Order: Preserved.
-- In-place: ✅ Yes.
-- Explanation:
-    - The "write" pointer overwrites duplicates as we go.
-    - We avoid repeated deletions by performing one final truncation.
+print(remove_duplicates_with_set(nums[:]))  # -> [3, 5, 1, 2]
 
+# ✅ Constraint-friendly variant (no set): use dict as boolean map
+def remove_duplicates_no_set(nums):
+    seen = {}
+    write = 0
+    for x in nums:
+        if x not in seen:
+            seen[x] = True
+            nums[write] = x
+            write += 1
+    del nums[write:]
+    return nums
 
+nums = [3, 5, 3, 1, 5, 2]
+print(remove_duplicates_no_set(nums[:]))  # -> [3, 5, 1, 2]
 
 
 # --------------------------------------------------------------
 # EXERCISE 5 — Above Average
 # --------------------------------------------------------------
-
+"""
 Print all numbers greater than the average of the list.
 Example:
     nums = [2, 4, 6, 8, 10]
 Average = 6
 Output = [8, 10]
 """
+
+# ❌ Attempt 1 (kept for history): uses sum(), which the global rule forbids
 nums = [2, 4, 6, 8, 10]
-# ✏️ Your code here
 for num in nums:
     if num > sum(nums)/len(nums):
         print(num)
+
+# ✅ Attempt 2 (fixed, no built-ins for sum/min/max)
+nums = [2, 4, 6, 8, 10]
+total = 0
+for x in nums:
+    total += x
+avg = total / len(nums)
+res = []
+for x in nums:
+    if x > avg:
+        res.append(x)
+print("Above average:", res)  # [8, 10]
+
 
 # --------------------------------------------------------------
 # EXERCISE 6 — Smallest and Largest Difference
@@ -228,11 +213,23 @@ Find the difference between the largest and smallest element.
 Example:
     nums = [10, 2, 7, 5] -> 8
 """
-nums = [10, 2, 7, 5]
-# ✏️ Your code here
 
+# ❌ Attempt 1 (kept): used max/min built-ins (not allowed by global rule)
+nums = [10, 2, 7, 5]
 diff = max(nums) - min(nums)
 print(diff)
+
+# ✅ Attempt 2 (fixed, manual scan)
+nums = [10, 2, 7, 5]
+mini = float("inf")
+maxi = float("-inf")
+for x in nums:
+    if x < mini:
+        mini = x
+    if x > maxi:
+        maxi = x
+print("Diff:", maxi - mini)
+
 
 # --------------------------------------------------------------
 # EXERCISE 7 — Build List of Squares
@@ -243,13 +240,13 @@ Example:
     nums = [1, 2, 3, 4] -> [1, 4, 9, 16]
 """
 nums = [1, 2, 3, 4]
-# ✏️ Your code here
 
+# ✅ Your solution is correct
 sq_nums = []
 for num in nums:
     sq_nums.append(num**2)
-    
 print(sq_nums)
+
 
 # --------------------------------------------------------------
 # EXERCISE 8 — Reverse a List (Manual)
@@ -261,14 +258,206 @@ Example:
     nums = [1, 2, 3, 4] -> [4, 3, 2, 1]
 """
 nums = [1, 2, 3, 4]
-# ✏️ Your code here
 
+# ✅ Your solution is correct (kept prints for visibility)
 left = 0 
 right = len(nums) - 1
-print(nums)
+print("Before reverse:", nums)
 while right > left:
     nums[left], nums[right] = nums[right], nums[left]
-    print(nums)
+    print("Swap ->", nums)
     left += 1
     right -= 1
-    
+print("After reverse:", nums)
+
+
+# --------------------------------------------------------------
+# ⬜️ EXERCISE 9 — Basic Condition: Kids With the Greatest Number of Candies (LC 1431)
+# --------------------------------------------------------------
+"""
+Given an array candies[] and an integer extraCandies,
+return a list of booleans indicating whether each kid
+can have the greatest number of candies if given the extra ones.
+
+Example:
+    candies = [2, 3, 5, 1, 3], extraCandies = 3
+    Output = [True, True, True, False, True]
+"""
+
+# ❌ Attempt 1 (kept): Mutates `candies` instead of producing a separate boolean list.
+candies = [2, 3, 5, 1, 3]
+extraCandies = 3
+print("Original candies:", candies)
+maximum = max(candies)  # allowed for this LC task (rule is not explicit here)
+for i in range(len(candies)):
+    if candies[i] + extraCandies >= maximum:
+        candies[i] = True
+    else:
+        candies[i] = False
+print("Attempt 1 result (mutated):", candies)
+
+# ✅ Attempt 2 (fixed): produce a new boolean list; avoid mutating input.
+candies = [2, 3, 5, 1, 3]
+extraCandies = 3
+# If you want to avoid max() per global rule, compute manually:
+m = float("-inf")
+for c in candies:
+    if c > m:
+        m = c
+res = []
+for c in candies:
+    res.append(c + extraCandies >= m)
+print("Attempt 2 result:", res)  # [True, True, True, False, True]
+
+
+# --------------------------------------------------------------
+# ⬜️ EXERCISE 10 — Build Array from Permutation (LC 1920)
+# --------------------------------------------------------------
+"""
+Given an array nums of length n, build an array ans where
+    ans[i] = nums[nums[i]]
+
+Example:
+    nums = [0,2,1,5,3,4]
+    Output = [0,1,2,4,5,3]
+"""
+
+# ✅ Your attempt was correct; just added an explicit print of ans
+nums = [0, 2, 1, 5, 3, 4]
+# expected -> [0,1,2,4,5,3]
+ans = []
+for i in range(len(nums)):
+    ans.append(nums[nums[i]])
+print("LC1920 ans:", ans)
+
+
+# --------------------------------------------------------------
+# ⬜️ EXERCISE 11 — Squares of a Sorted Array (LC 977)
+# --------------------------------------------------------------
+"""
+Given a sorted array nums, return a new array of squares of each number,
+also sorted in non-decreasing order.
+
+Example:
+    nums = [-4, -1, 0, 3, 10]
+    Output = [0, 1, 9, 16, 100]
+"""
+
+# ✅ Attempt 1 (kept): square then sort (O(n log n))
+nums = [-4, -1, 0, 3, 10]
+output = []
+for num in nums:
+    sqr = num ** 2
+    output.append(sqr)
+output.sort()
+print("LC977 Attempt 1:", output)
+
+# ✅ Attempt 2 (added, optimal two-pointer O(n))
+nums = [-4, -1, 0, 3, 10]
+n = len(nums)
+res = [0] * n
+l, r, w = 0, n - 1, n - 1
+while l <= r:
+    if abs(nums[l]) > abs(nums[r]):
+        res[w] = nums[l] * nums[l]
+        l += 1
+    else:
+        res[w] = nums[r] * nums[r]
+        r -= 1
+    w -= 1
+print("LC977 Attempt 2 (two-pointer):", res)
+
+
+# --------------------------------------------------------------
+# ⬜️ EXERCISE 12 — Search Insert Position (LC 35)
+# --------------------------------------------------------------
+"""
+Given a sorted array nums and a target,
+return the index if found; otherwise, the index where it should be inserted.
+
+Example:
+    nums = [1,3,5,6], target = 5 -> 2
+    nums = [1,3,5,6], target = 2 -> 1
+"""
+
+# ❌ Attempt 1 (kept): only prints when found; doesn't handle not found/insert index.
+nums = [1, 3, 5, 6]
+target = 5
+for index, value in enumerate(nums):
+    if value == target:
+        print("LC35 Attempt 1 (found at):", index)
+
+for i in range(len(nums)):
+    if nums[i] == target:
+        print("LC35 Attempt 1 (also found at):", i)
+
+# ✅ Attempt 2 (added): binary search to get insert position too
+nums = [1, 3, 5, 6]
+target = 5
+l, r = 0, len(nums) - 1
+ans = len(nums)
+while l <= r:
+    mid = (l + r) // 2
+    if nums[mid] >= target:
+        ans = mid
+        r = mid - 1
+    else:
+        l = mid + 1
+print("LC35 Attempt 2 (insert index):", ans)
+
+
+# --------------------------------------------------------------
+# ⬜️ EXERCISE 13 — Binary Search (LC 704)
+# --------------------------------------------------------------
+"""
+Implement binary search on a sorted array.
+If target is not found, return -1.
+
+Example:
+    nums = [-1,0,3,5,9,12], target = 9 -> 4
+    nums = [-1,0,3,5,9,12], target = 2 -> -1
+"""
+# ✏️ Your code here — TODO: implement classic binary search.
+# Leave as-is per your request (not completed yet).
+nums = [-1, 0, 3, 5, 9, 12]
+target = 12
+# expected -> 3
+# TODO: implement and print result (index or -1)
+
+left = 0
+right = len(nums) - 1
+
+while left <= right:
+    middle = (right + left) // 2
+    if nums[middle] > target:
+        right = middle - 1
+    elif nums[middle] < target:
+        left = middle + 1
+    elif nums[middle] == target:
+        print(f"index: {middle}, value: {nums[middle]}")
+        found = True
+        break
+
+if not found:
+    print("Not Found")
+
+
+
+
+
+# --------------------------------------------------------------
+# ⬜️ EXERCISE 14 — Contains Duplicate (LC 217)
+# --------------------------------------------------------------
+"""
+Return True if any value appears at least twice in the array.
+Otherwise, return False.
+
+Example:
+    nums = [1,2,3,1] -> True
+    nums = [1,2,3,4] -> False
+"""
+# ✏️ Your code here — TODO: implement with a dict/set scan.
+# Leave as-is per your request (not completed yet).
+nums = [1, 2, 3, 1]
+# expected -> True
+# TODO: implement and print True/False
