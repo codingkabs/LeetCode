@@ -407,45 +407,6 @@ print("LC35 Attempt 2 (insert index):", ans)
 
 
 # --------------------------------------------------------------
-# ⬜️ EXERCISE 13 — Binary Search (LC 704)
-# --------------------------------------------------------------
-"""
-Implement binary search on a sorted array.
-If target is not found, return -1.
-
-Example:
-    nums = [-1,0,3,5,9,12], target = 9 -> 4
-    nums = [-1,0,3,5,9,12], target = 2 -> -1
-"""
-# ✏️ Your code here — TODO: implement classic binary search.
-# Leave as-is per your request (not completed yet).
-nums = [-1, 0, 3, 5, 9, 12]
-target = 12
-# expected -> 3
-# TODO: implement and print result (index or -1)
-
-left = 0
-right = len(nums) - 1
-
-while left <= right:
-    middle = (right + left) // 2
-    if nums[middle] > target:
-        right = middle - 1
-    elif nums[middle] < target:
-        left = middle + 1
-    elif nums[middle] == target:
-        print(f"index: {middle}, value: {nums[middle]}")
-        found = True
-        break
-
-if not found:
-    print("Not Found")
-
-
-
-
-
-# --------------------------------------------------------------
 # ⬜️ EXERCISE 14 — Contains Duplicate (LC 217)
 # --------------------------------------------------------------
 """
@@ -456,8 +417,51 @@ Example:
     nums = [1,2,3,1] -> True
     nums = [1,2,3,4] -> False
 """
-# ✏️ Your code here — TODO: implement with a dict/set scan.
-# Leave as-is per your request (not completed yet).
-nums = [1, 2, 3, 1]
-# expected -> True
-# TODO: implement and print True/False
+
+# ✅ APPROACH 1 — Dictionary (Hashmap) Scan with Early Exit
+# --------------------------------------------------------------
+# Logic:
+#   - Iterate through nums.
+#   - If an element already exists in the hashmap, a duplicate is found.
+#   - Break immediately (early exit).
+#
+# Time Complexity:  O(n)  — average case (each lookup O(1))
+# Space Complexity: O(n)  — stores up to n unique elements
+# Pros: Stops early when duplicate found; easily extendable to counting.
+
+nums = [1, 2, 3, 4]
+# expected -> False
+
+hashmap = {}
+for num in nums:
+    if num in hashmap:
+        print(True)
+        break
+    hashmap[num] = 1
+else:
+    print(False)
+
+
+
+# ✅ APPROACH 2 — Using Set Comparison
+# --------------------------------------------------------------
+# Logic:
+#   - Convert the list into a set (which removes duplicates).
+#   - If the lengths differ, duplicates existed.
+#
+# Time Complexity:  O(n)  — building the set traverses all elements once
+# Space Complexity: O(n)  — stores all unique elements
+# Pros: Very concise and Pythonic
+# Cons: Cannot early-exit; always processes full list
+
+nums = [1, 2, 3, 4]
+# expected -> False
+
+set_nums = set(nums)
+
+if len(set_nums) == len(nums):
+    print(False)
+else:
+    print(True)
+
+print("set:", set_nums, "| original:", nums)
